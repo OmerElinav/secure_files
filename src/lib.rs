@@ -38,7 +38,6 @@ impl SecureFile {
 //     Ok(&SecureFile { path })
 // }
 
-/// A Python module implemented in Rust.
 #[pymodule]
 fn secure_files(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<SecureFile>()?;
