@@ -1,2 +1,2 @@
 # secure_files
-read and write encrypted files
+read and write encrypted files.
