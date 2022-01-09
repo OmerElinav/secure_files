@@ -2,6 +2,23 @@ use std::fs;
 use std::path::{PathBuf};
 use pyo3::prelude::*;
 
+fn simple_encrypt(message: String) -> String {
+    let bytes = &message
+        .as_bytes()
+        .iter()
+        .map(|x| (x ^ 1))
+        .collect::<Vec<u8>>()[..];
+    std::str::from_utf8(bytes).unwrap().to_string()
+}
+
+fn simple_decrypt(message: String) -> String {
+    let bytes = &message
+        .as_bytes()
+        .iter()
+        .map(|x| (x ^ 1))
+        .collect::<Vec<u8>>()[..];
+    std::str::from_utf8(bytes).unwrap().to_string()
+}
 
 #[pyclass]
 struct SecureFile {
@@ -15,12 +32,14 @@ impl SecureFile {
         SecureFile { path }
     }
 
-    fn read(&self) -> std::io::Result<String> {
-        fs::read_to_string(&self.path)
+    fn read(&self) -> PyResult<String> {
+        let encrypted = &simple_encrypt(fs::read_to_string(&self.path)?);
+        Ok(encrypted.to_string())
     }
 
     fn write(&self, contents: &str) -> std::io::Result<()> {
-        fs::write(&self.path, contents)
+        let content = simple_decrypt(contents.to_string());
+        fs::write(&self.path, content)
     }
 
     fn __enter__<'p>(this: PyRef<'p, Self>, _py: Python<'p>) -> PyResult<PyRef<'p, Self>> {
@@ -28,7 +47,7 @@ impl SecureFile {
     }
 
     fn __exit__<'p>(&self, exc_type: &'p PyAny, exc_value: &'p PyAny, exc_traceback: &'p PyAny)
-                -> (&'p PyAny, &'p PyAny, &'p PyAny) {
+                    -> (&'p PyAny, &'p PyAny, &'p PyAny) {
         (exc_type, exc_value, exc_traceback)
     }
 }
