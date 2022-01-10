@@ -52,8 +52,14 @@ impl SecureFile {
     }
 }
 
+#[pyfunction]
+fn open(path: PathBuf) -> PyResult<SecureFile> {
+    Ok(SecureFile { path })
+}
+
 #[pymodule]
 fn secure_files(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<SecureFile>()?;
+    m.add_function(wrap_pyfunction!(open, m)?)?;
     Ok(())
 }
